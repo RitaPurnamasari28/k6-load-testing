@@ -1,0 +1,11 @@
+{
+    "type": "module",
+  "scripts": {
+    "loadtest": "node run-loadtest.js"
+
+  },
+
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  }
+}
