@@ -1,164 +1,78 @@
 name: K6 Load Testing
 
-
 on:
-
   schedule:
-
-    - cron:
-        "0 18 * * *"
-
+    - cron: "0 18 * * *"
 
   workflow_dispatch:
 
-
-
 jobs:
-
-
   load-test:
-
-
-    runs-on:
-      ubuntu-latest
-
-
+    runs-on: ubuntu-latest
 
     env:
-
-      TZ:
-        Asia/Makassar
-
-
+      TZ: Asia/Makassar
 
     steps:
+      - name: Checkout
 
+        uses: actions/checkout@v4
 
-    - name:
-        Checkout
+      - name: Setup Node
 
-      uses:
-        actions/checkout@v4
+        uses: actions/setup-node@v4
 
+        with:
+          node-version: 20
 
+      - name: Install npm
 
-    - name:
-        Setup Node
+        run: |
+          npm install
 
-      uses:
-        actions/setup-node@v4
+      - name: Install k6
+        run: |
+          sudo mkdir -p /etc/apt/keyrings
 
-      with:
+           curl -fsSL https://dl.k6.io/key.gpg \
+           | sudo gpg --dearmor -o /etc/apt/keyrings/k6-archive-keyring.gpg
 
-        node-version:
-          20
+           echo "deb [signed-by=/etc/apt/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
+           | sudo tee /etc/apt/sources.list.d/k6.list
 
+           sudo apt-get update
+           sudo apt-get install -y k6
 
+      - name: Run K6
 
-    - name:
-        Install npm
+        continue-on-error: true
 
-      run:
+        run: npm run loadtest
 
-        npm install
+      - name: Generate Excel Report
 
+        if: always()
 
+        run: node utils/excel-report.js
 
-    - name:
-        Install k6
+      - name: Upload Excel Report
 
-      run:
+        if: always()
 
-        sudo gpg -k
+        uses: actions/upload-artifact@v4
 
-        sudo gpg --no-default-keyring \
-        --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
-        --keyserver hkp://keyserver.ubuntu.com:80 \
-        --recv-keys C5AD5F4F7A6A6D3A
+        with:
+          name: k6-load-test-report
 
+          path: reports/k6-report.xlsx
 
-        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
-        | sudo tee /etc/apt/sources.list.d/k6.list
+      - name: Upload JSON Result
 
+        if: always()
 
-        sudo apt update
+        uses: actions/upload-artifact@v4
 
-        sudo apt install k6
+        with:
+          name: k6-json-result
 
-
-
-    - name:
-        Run K6
-
-
-      continue-on-error:
-        true
-
-
-      run:
-
-        npm run loadtest
-
-
-
-    - name:
-        Generate Excel Report
-
-
-      if:
-        always()
-
-
-      run:
-
-        node utils/excel-report.js
-
-
-
-    - name:
-        Upload Excel Report
-
-
-      if:
-        always()
-
-
-      uses:
-        actions/upload-artifact@v4
-
-
-      with:
-
-
-        name:
-          k6-load-test-report
-
-
-        path:
-
-          reports/k6-report.xlsx
-
-
-
-    - name:
-        Upload JSON Result
-
-
-      if:
-        always()
-
-
-      uses:
-        actions/upload-artifact@v4
-
-
-      with:
-
-
-        name:
-          k6-json-result
-
-
-        path:
-
-          reports/results.json
+          path: reports/results.json
