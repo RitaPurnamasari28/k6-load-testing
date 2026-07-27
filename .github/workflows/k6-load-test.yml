@@ -67,7 +67,7 @@ jobs:
         with:
           name: k6-load-test-report
 
-          path: reports/k6-report.xlsx
+          path: reports/Load-Test-Report.xlsx
 
       - name: Upload JSON Result
 
