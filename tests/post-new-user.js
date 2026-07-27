@@ -152,7 +152,7 @@ export default function(){
 
     check(res,{
 
-        "status is 200":
+        "status is 201":
 
         (r)=>r.status===200
 

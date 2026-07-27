@@ -3,7 +3,7 @@ import { check, sleep } from "k6";
 import { Counter } from "k6/metrics";
 
 
-const status405 = new Counter("status_405");
+const status200 = new Counter("status_200");
 const status500 = new Counter("status_500");
 
 
@@ -11,7 +11,7 @@ const TEST_INFO = {
 
     project: "Load testing Automation Exercise",
 
-    testName: "POST All Products List API Load Test",
+    testName: "POST all Products list",
 
     environment: "QA",
 
@@ -80,11 +80,12 @@ export default function(){
         TEST_INFO.apiUrl
     );
 
+    //console.log(`HTTP Status: ${res.status}`);
+   // console.log(`Response Body: ${res.body}`);
 
+    if(res.status === 200){
 
-    if(res.status === 405){
-
-        status405.add(1);
+        status200.add(1);
 
     }
 
@@ -103,7 +104,7 @@ export default function(){
 
         "status is 405":
 
-        (r)=>r.status===405
+        (r)=>r.status===200
 
 
     });
@@ -217,9 +218,9 @@ export function handleSummary(data){
         httpStatus:{
 
 
-            405:
-            data.metrics.status_405
-            ? data.metrics.status_405.values.count
+            200:
+            data.metrics.status_200
+            ? data.metrics.status_200.values.count
             :0,
 
 
