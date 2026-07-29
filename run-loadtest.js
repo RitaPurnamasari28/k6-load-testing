@@ -4,6 +4,7 @@ const tests = [
     "tests/get-product-list.js",
     "tests/post-product.js",
     "tests/post-new-user.js",
+    "tests/user-login.js",
 ];
 
 let exitCode = 0;

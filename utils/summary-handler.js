@@ -22,7 +22,10 @@ ${data.metrics.http_req_duration.values.avg} ms
 
 
 P95:
-${data.metrics.http_req_duration.values['p(95)']} ms
+${data.metrics.http_req_duration.values['p(95)'] ?? '-'} ms
+
+P99:
+${data.metrics.http_req_duration.values['p(99)'] ?? '-'} ms
 
 
 ===============================

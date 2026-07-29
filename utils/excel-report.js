@@ -18,14 +18,14 @@ async function generateReport() {
 
 
     summarySheet.addRow([
-        "Test Name",
-        "Total Request",
+        "Test Name", 
+        "Total Request", 
         "Failed %",
-        "Average",
-        "P95",
+        "Average", //rata-rata response untuk seluruh request
+        "P95", //95% request selesai sebelum ... ms
         "P99",
-        "Max",
-        "Min"
+        "Max", //menampilkan request terlama dalam ms
+        "Min" //menampilkan request tercepat dalam ms
     ]);
 
 

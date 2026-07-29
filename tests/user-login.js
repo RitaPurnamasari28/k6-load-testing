@@ -4,6 +4,7 @@ import { Counter } from "k6/metrics";
 
 
 const status200 = new Counter("status_200");
+const status400 = new Counter("status_400");
 const status500 = new Counter("status_500");
 
 
@@ -11,14 +12,14 @@ const TEST_INFO = {
 
     project: "Load testing Automation Exercise",
 
-    testName: "POST all Products list",
+    testName: "User login",
 
     environment: "QA",
 
     executor: "GitHub Actions",
 
     apiUrl:
-    "https://automationexercise.com/api/productsList"
+    "https://automationexercise.com/api/verifyLogin"
 
 };
 
@@ -28,7 +29,7 @@ export const options = {
 
     scenarios: {
 
-        post_products_load: {
+        user_login: {
 
             executor:"ramping-vus",
 
@@ -36,12 +37,12 @@ export const options = {
 
                 {
                     duration:"1m",
-                    target:50
+                    target:20
                 },
 
                 {
                     duration:"5m",
-                    target:50
+                    target:20
                 },
 
                 {
@@ -59,6 +60,7 @@ export const options = {
     summaryTrendStats: ["avg", "min", "max", "p(90)", "p(95)", "p(99)"],
 
     thresholds:{
+
 
         http_req_failed:[
             "rate<0.01"
@@ -78,22 +80,41 @@ export const options = {
 export default function(){
 
 
+    const timestamp = Date.now();
+
+
+    const payload = {
+
+
+        email:`testingninura@gmail.com`,
+
+        password:"5465765Qwert/-"
+    };
+
+
+
     const res = http.post(
-        TEST_INFO.apiUrl
-    );
+    "https://automationexercise.com/api/verifyLogin",
+    payload
+);
 
-    //console.log(`HTTP Status: ${res.status}`);
-   // console.log(`Response Body: ${res.body}`);
 
-    if(res.status === 200){
+
+    if(res.status===200){
 
         status200.add(1);
 
     }
 
 
+    if(res.status===400){
 
-    if(res.status === 500){
+        status400.add(1);
+
+    }
+
+
+    if(res.status===500){
 
         status500.add(1);
 
@@ -101,10 +122,9 @@ export default function(){
 
 
 
-    check(res, {
+    check(res,{
 
-
-        "status is 405":
+        "status is 200":
 
         (r)=>r.status===200
 
@@ -119,46 +139,37 @@ export default function(){
 
 
 
-
 export function handleSummary(data){
 
 
-    const fileName =
-    TEST_INFO.testName
-    .replace(/ /g,"-")
-    .toLowerCase();
+    const fileName = TEST_INFO.testName
+        .replace(/ /g,"-")
+        .toLowerCase();
 
 
 
     const report={
 
 
-        reportTitle:
-        "LOAD TEST REPORT",
+        reportTitle:"LOAD TEST REPORT",
 
 
-        project:
-        TEST_INFO.project,
+        project:TEST_INFO.project,
 
 
-        testName:
-        TEST_INFO.testName,
+        testName:TEST_INFO.testName,
 
 
-        environment:
-        TEST_INFO.environment,
+        environment:TEST_INFO.environment,
 
 
-        executor:
-        TEST_INFO.executor,
+        executor:TEST_INFO.executor,
 
 
-        apiUrl:
-        TEST_INFO.apiUrl,
+        apiUrl:TEST_INFO.apiUrl,
 
 
-        date:
-        new Date().toLocaleString(
+        date:new Date().toLocaleString(
             "id-ID",
             {
                 timeZone:"Asia/Makassar"
@@ -176,7 +187,7 @@ export function handleSummary(data){
 
             failedPercentage:
             (
-              data.metrics.http_req_failed.values.rate*100
+                data.metrics.http_req_failed.values.rate*100
             ).toFixed(2)+"%",
 
 
@@ -205,7 +216,7 @@ export function handleSummary(data){
         scenario:{
 
 
-            virtualUsers:50,
+            virtualUsers:20,
 
 
             rampUp:"1 minute",
@@ -216,13 +227,18 @@ export function handleSummary(data){
         },
 
 
-
         httpStatus:{
 
 
             200:
             data.metrics.status_200
             ? data.metrics.status_200.values.count
+            :0,
+
+
+            400:
+            data.metrics.status_400
+            ? data.metrics.status_400.values.count
             :0,
 
 
@@ -250,5 +266,6 @@ export function handleSummary(data){
         )
 
     };
+
 
 }

@@ -57,6 +57,8 @@ export const options = {
     },
 
 //Test passing requirements
+    summaryTrendStats: ["avg", "min", "max", "p(90)", "p(95)", "p(99)"],
+
     thresholds: {
 
         http_req_failed:[
@@ -176,7 +178,7 @@ export function handleSummary(data){
 
 
             p99:
-            data.metrics.http_req_duration.values["p(99)"],
+            data.metrics.http_req_duration.values["p(99)"] ?? "-",
 
 
             max:
